@@ -41,11 +41,19 @@ namespace Splunk.Providers
 
         void SetupHttpClient(SplunkLoggerConfiguration configuration, string endPointCustomization)
         {
-            httpClient = new HttpClient
-            {
-                BaseAddress = GetSplunkCollectorUrl(configuration, endPointCustomization)
-            };
+            //httpClient = new HttpClient
+            //{
+            //    BaseAddress = GetSplunkCollectorUrl(configuration, endPointCustomization)
+            //};
+            
+            //make a new client handler to initialize hhtpClient
+            var httpClientHandler = new HttpClientHandler();
+            //allow unsecured and self signed ssl certificates for request
+            httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
 
+            httpClient = new HttpClient(httpClientHandler);
+            httpClient.BaseAddress = GetSplunkCollectorUrl(configuration, endPointCustomization);
+            
             if (configuration.HecConfiguration.DefaultTimeoutInMilliseconds > 0)
                 httpClient.Timeout = TimeSpan.FromMilliseconds(configuration.HecConfiguration.DefaultTimeoutInMilliseconds);
 
